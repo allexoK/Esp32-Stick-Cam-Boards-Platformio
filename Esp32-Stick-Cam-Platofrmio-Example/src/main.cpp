@@ -27,6 +27,13 @@
 #define SCK_GPIO            36
 #define CS_GPIO             39
 
+// #define INT_GPIO            14
+
+// #define MISO_GPIO           2
+// #define MOSI_GPIO           1
+// #define SCK_GPIO            3
+// #define CS_GPIO             39
+
 //////////////////////////////////////////////////////////
 
 #include <WebServer_ESP32_W5500.h>
