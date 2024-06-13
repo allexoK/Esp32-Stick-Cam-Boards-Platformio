@@ -22,9 +22,9 @@
 // Must connect INT to GPIOxx or not working
 #define INT_GPIO            38
 
-#define MISO_GPIO           37
-#define MOSI_GPIO           35
-#define SCK_GPIO            36
+#define MISO_GPIO           14
+#define MOSI_GPIO           1
+#define SCK_GPIO            21
 #define CS_GPIO             39
 
 // #define INT_GPIO            14
