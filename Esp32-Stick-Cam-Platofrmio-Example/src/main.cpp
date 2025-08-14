@@ -3,7 +3,8 @@
 #include <Arduino.h>
 #include "SPI.h"
 #include <esp32cam.h>
-// #include <WiFi.h>
+#include <WiFi.h>
+#include "Wire.h"
 
 #if !( defined(ESP32) )
   #error This code is designed for (ESP32 + W5500) to run on ESP32 platform! Please check your Tools->Board setting.
@@ -22,17 +23,17 @@
 // Must connect INT to GPIOxx or not working
 #define INT_GPIO            38
 
-#define MISO_GPIO           14
-#define MOSI_GPIO           1
-#define SCK_GPIO            21
-#define CS_GPIO             39
+// #define MISO_GPIO           37
+// #define MOSI_GPIO           35
+// #define SCK_GPIO            36
+// #define CS_GPIO             39
 
 // #define INT_GPIO            14
 
-// #define MISO_GPIO           2
-// #define MOSI_GPIO           1
-// #define SCK_GPIO            3
-// #define CS_GPIO             39
+#define MISO_GPIO           37
+#define MOSI_GPIO           35
+#define SCK_GPIO            36
+#define CS_GPIO             39
 
 //////////////////////////////////////////////////////////
 
@@ -171,7 +172,7 @@ void setup()
   //           int SPI_HOST, uint8_t *W6100_Mac = W6100_Default_Mac);
   Serial0.printf("%d\n\r",ETH.begin( MISO_GPIO, MOSI_GPIO, SCK_GPIO, CS_GPIO, INT_GPIO, SPI_CLOCK_MHZ, ETH_SPI_HOST ));
   pinMode(INT_GPIO,INPUT_PULLUP);
-  //ETH.begin( MISO_GPIO, MOSI_GPIO, SCK_GPIO, CS_GPIO, INT_GPIO, SPI_CLOCK_MHZ, ETH_SPI_HOST, mac[millis() % NUMBER_OF_MAC] );
+  // ETH.begin( MISO_GPIO, MOSI_GPIO, SCK_GPIO, CS_GPIO, INT_GPIO, SPI_CLOCK_MHZ, ETH_SPI_HOST, mac[millis() % NUMBER_OF_MAC] );
 
   // Static IP, leave without this line to get IP via DHCP
   //bool config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1 = 0, IPAddress dns2 = 0);
@@ -184,10 +185,49 @@ void setup()
   // start the web server on port 80
   server.on("/cam-lo.jpg", handleJpgLo); 
   server.begin();
+  Wire.begin(4,5);
 }
 
 void loop()
 {
+  byte error, address;
+  int nDevices;
+  Serial0.println("Scanning...");
+
+  nDevices = 0;
+  for(address = 1; address < 127; address++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+
+    if (error == 0)
+    {
+      Serial0.print("I2C device found at address 0x");
+      if (address<16)
+        Serial0.print("0");
+      Serial0.print(address,HEX);
+      Serial0.println("  !");
+
+      nDevices++;
+    }
+    else if (error==4)
+    {
+      Serial0.print("Unknown error at address 0x");
+      if (address<16)
+        Serial0.print("0");
+      Serial0.println(address,HEX);
+    }
+  }
+  if (nDevices == 0)
+    Serial0.println("No I2C devices found\n");
+  else
+    Serial0.println("done\n");
+
+  delay(5000);           // wait 5 seconds for next scan
+
   server.handleClient();
   delay(5);
 }

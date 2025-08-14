@@ -9,7 +9,7 @@ def nothing(x):
 #IP shown in the Serial monitor of Arduino code
 # url='http://172.19.11.25/cam-lo.jpg'
 
-url='http://172.19.11.82/cam-lo.jpg'
+url='http://172.19.11.79/cam-lo.jpg'
 # url='http://172.19.11.132/cam-lo.jpg'
 # url='http://192.168.8.103'
  
